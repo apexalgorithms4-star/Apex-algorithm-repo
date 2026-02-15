@@ -2,266 +2,353 @@
 
 ## Introduction
 
-The Smart Community Issue Reporting & Resolution System is a full-stack AI-powered platform that enables citizens to report local community problems through mobile and web applications. The system uses artificial intelligence to automatically classify, prioritize, track, and route issues to appropriate authorities, while providing transparency through public dashboards and real-time tracking capabilities.
+The Community Issue Reporting Platform is a web-based system that enables citizens to report civic issues (road damage, garbage, water leaks, electricity problems, safety concerns, drainage, streetlights) through multiple input methods. The platform uses AI to automatically classify, prioritize, and route issues to appropriate authorities while providing transparency through public dashboards and real-time tracking.
 
 ## Glossary
 
-- **Citizen_App**: The mobile and web application used by citizens to report issues
-- **Issue**: A community problem reported by a citizen (road damage, garbage, water leak, electricity, safety, drainage, streetlight)
-- **Report**: A submission containing photo, voice, text, and GPS location data
-- **AI_Classifier**: The machine learning system that categorizes and prioritizes issues
-- **Authority_Dashboard**: The administrative web interface used by government officials
-- **Issue_Status**: The current state of an issue (Submitted, Verified, Assigned, In Progress, Resolved)
-- **Severity_Level**: The urgency classification (Low, Medium, High, Critical)
-- **Category**: The type of issue (Road, Water, Garbage, Electricity, Safety, Sanitation, Drainage, Streetlight)
-- **Priority_Score**: A calculated value based on severity, location risk, crowd reports, and time pending
-- **Department**: A government authority responsible for resolving specific issue categories
-- **Transparency_Dashboard**: The public-facing dashboard showing live issue tracking and statistics
-- **Duplicate_Issue**: Multiple reports of the same problem from different users
-- **Authentication_Service**: The phone-based OTP authentication system
-- **Notification_Service**: The system that sends status updates to users
-- **Emergency_Mode**: Special handling for critical safety issues requiring immediate attention
+- **Citizen_App**: The responsive web application used by citizens to report issues
+- **Issue**: A reported civic problem requiring authority attention
+- **Authority_Dashboard**: The admin web panel used by government departments to manage issues
+- **Public_Portal**: The transparency dashboard accessible to all citizens
+- **AI_Engine**: The machine learning system that classifies, analyzes, and prioritizes issues
+- **OTP**: One-Time Password for authentication
+- **Status_Workflow**: The progression states of an issue (Submitted → Verified → Assigned → In Progress → Resolved)
+- **Priority_Score**: A calculated value determining issue urgency based on multiple factors
+- **Department**: A government entity responsible for resolving specific issue categories
 
 ## Requirements
 
 ### Requirement 1: User Authentication
 
-**User Story:** As a citizen, I want to securely log into the application using my phone number, so that I can report issues and track my complaints.
+**User Story:** As a citizen, I want to securely log into the platform using my phone number, so that I can report issues and track my submissions.
 
 #### Acceptance Criteria
 
-1. WHEN a citizen enters a valid phone number, THE Authentication_Service SHALL send an OTP to that number within 30 seconds
-2. WHEN a citizen enters a correct OTP within 5 minutes, THE Authentication_Service SHALL grant access to the application
-3. WHEN a citizen enters an incorrect OTP, THE Authentication_Service SHALL reject the login attempt and allow up to 3 retry attempts
-4. WHEN OTP retry attempts are exhausted, THE Authentication_Service SHALL block login attempts for 15 minutes
-5. THE Authentication_Service SHALL maintain user session for 30 days without requiring re-authentication
+1. WHEN a citizen enters a valid phone number, THE Citizen_App SHALL send an OTP to that number
+2. WHEN a citizen enters a valid OTP within 5 minutes, THE Citizen_App SHALL authenticate the user and create a session
+3. WHEN an OTP expires after 5 minutes, THE Citizen_App SHALL reject the authentication attempt and require a new OTP
+4. WHEN a citizen enters an invalid OTP, THE Citizen_App SHALL reject the authentication and allow up to 3 retry attempts
+5. WHEN authentication fails 3 times, THE Citizen_App SHALL temporarily block the phone number for 15 minutes
 
-### Requirement 2: Issue Reporting via Photo
+### Requirement 2: Multi-Modal Issue Reporting
 
-**User Story:** As a citizen, I want to report issues by uploading photos, so that authorities can see the exact problem visually.
-
-#### Acceptance Criteria
-
-1. WHEN a citizen captures or selects a photo, THE Citizen_App SHALL accept images in JPEG, PNG, or HEIC format up to 10MB
-2. WHEN a photo is uploaded, THE Citizen_App SHALL automatically capture GPS coordinates with accuracy within 50 meters
-3. WHEN a photo is submitted, THE AI_Classifier SHALL analyze the image and return a category within 5 seconds
-4. THE Citizen_App SHALL compress images to reduce file size by at least 50% while maintaining visual quality
-5. WHEN network connectivity is unavailable, THE Citizen_App SHALL queue the report for automatic submission when connectivity is restored
-
-### Requirement 3: Issue Reporting via Voice
-
-**User Story:** As a citizen, I want to report issues using voice complaints, so that I can quickly describe problems without typing.
+**User Story:** As a citizen, I want to report issues using photos, voice recordings, or text, so that I can provide information in the most convenient way.
 
 #### Acceptance Criteria
 
-1. WHEN a citizen records a voice complaint, THE Citizen_App SHALL accept audio recordings up to 2 minutes in duration
-2. WHEN a voice recording is submitted, THE AI_Classifier SHALL convert speech to text with at least 85% accuracy
-3. WHEN speech-to-text conversion completes, THE AI_Classifier SHALL analyze the text and extract issue category and description
-4. THE Citizen_App SHALL support voice recording in Hindi, English, and regional Indian languages
-5. WHEN audio quality is poor, THE AI_Classifier SHALL request the citizen to re-record the complaint
+1. WHEN a citizen captures a photo through the browser, THE Citizen_App SHALL accept image files up to 10MB in JPEG, PNG, or WebP format
+2. WHEN a citizen records audio through the browser microphone, THE Citizen_App SHALL capture audio up to 2 minutes in duration
+3. WHEN a citizen enters text description, THE Citizen_App SHALL accept text input up to 1000 characters
+4. WHEN a citizen submits an issue, THE Citizen_App SHALL require at least one input method (photo, voice, or text)
+5. WHEN the browser geolocation API is available, THE Citizen_App SHALL automatically capture GPS coordinates
+6. WHEN geolocation is unavailable or denied, THE Citizen_App SHALL allow manual location selection via map interface
 
-### Requirement 4: Issue Reporting via Text
+### Requirement 3: AI Image Classification
 
-**User Story:** As a citizen, I want to report issues using text descriptions, so that I can provide detailed written explanations.
-
-#### Acceptance Criteria
-
-1. WHEN a citizen enters a text complaint, THE Citizen_App SHALL accept descriptions between 10 and 500 characters
-2. WHEN text is submitted, THE AI_Classifier SHALL analyze the content and extract issue category within 3 seconds
-3. THE Citizen_App SHALL validate that text input contains meaningful content and reject empty or spam submissions
-4. THE Citizen_App SHALL support text input in Hindi, English, and regional Indian languages
-5. WHEN profanity or abusive language is detected, THE Citizen_App SHALL reject the submission and notify the citizen
-
-### Requirement 5: AI-Powered Issue Classification
-
-**User Story:** As a system administrator, I want AI to automatically classify issues, so that reports are routed to the correct departments without manual intervention.
+**User Story:** As the system, I want to automatically detect issue types from uploaded images, so that issues are correctly categorized without manual intervention.
 
 #### Acceptance Criteria
 
-1. WHEN an issue is submitted, THE AI_Classifier SHALL categorize it into one of eight categories (Road, Water, Garbage, Electricity, Safety, Sanitation, Drainage, Streetlight)
-2. WHEN classification confidence is below 70%, THE AI_Classifier SHALL flag the issue for manual review
-3. THE AI_Classifier SHALL assign a severity level (Low, Medium, High, Critical) based on image analysis and text content
-4. WHEN multiple data sources are provided (photo + voice + text), THE AI_Classifier SHALL combine all inputs to improve classification accuracy
-5. THE AI_Classifier SHALL achieve at least 90% classification accuracy on test datasets
+1. WHEN an image is uploaded, THE AI_Engine SHALL analyze it using a computer vision model
+2. WHEN the AI_Engine processes an image, THE AI_Engine SHALL classify it into one of these categories: Road, Water, Garbage, Electricity, Safety, Sanitation, Drainage, or Streetlight
+3. WHEN the AI_Engine classifies an image, THE AI_Engine SHALL provide a confidence score between 0 and 1
+4. WHEN the confidence score is below 0.6, THE AI_Engine SHALL flag the issue for manual verification
+5. WHEN multiple objects are detected, THE AI_Engine SHALL select the category with the highest confidence score
+
+### Requirement 4: Voice-to-Text and NLP Analysis
+
+**User Story:** As the system, I want to convert voice recordings to text and extract complaint meaning, so that voice reports are processed like text reports.
+
+#### Acceptance Criteria
+
+1. WHEN a voice recording is submitted, THE AI_Engine SHALL convert it to text using speech-to-text processing
+2. WHEN text is extracted from voice or provided directly, THE AI_Engine SHALL analyze it to identify the issue category
+3. WHEN the NLP analysis completes, THE AI_Engine SHALL extract key entities (location names, issue types, urgency indicators)
+4. WHEN the voice-to-text conversion fails, THE AI_Engine SHALL flag the issue for manual review
+5. WHEN multiple languages are detected, THE AI_Engine SHALL process the dominant language in the recording
+
+### Requirement 5: Automatic Severity Detection
+
+**User Story:** As the system, I want to automatically determine issue severity, so that critical problems receive immediate attention.
+
+#### Acceptance Criteria
+
+1. WHEN an issue is analyzed, THE AI_Engine SHALL assign a severity level: Low, Medium, High, or Critical
+2. WHEN safety-related keywords are detected (fire, accident, injury, danger), THE AI_Engine SHALL assign Critical severity
+3. WHEN infrastructure failure keywords are detected (major leak, road collapse, power outage), THE AI_Engine SHALL assign High severity
+4. WHEN maintenance keywords are detected (minor damage, litter, dim light), THE AI_Engine SHALL assign Medium or Low severity
+5. WHEN image analysis detects hazardous conditions, THE AI_Engine SHALL override text-based severity with Critical
 
 ### Requirement 6: Priority Scoring Algorithm
 
-**User Story:** As an authority, I want issues to be automatically prioritized, so that critical problems are addressed first.
+**User Story:** As the system, I want to calculate priority scores for issues, so that the most urgent problems are addressed first.
 
 #### Acceptance Criteria
 
-1. WHEN an issue is classified, THE AI_Classifier SHALL calculate a priority score using the formula: Priority = Severity + Location_Risk + Crowd_Reports + Time_Pending
-2. WHEN severity is Critical, THE AI_Classifier SHALL assign a severity weight of 40 points
-3. WHEN severity is High, THE AI_Classifier SHALL assign a severity weight of 30 points
-4. WHEN severity is Medium, THE AI_Classifier SHALL assign a severity weight of 20 points
-5. WHEN severity is Low, THE AI_Classifier SHALL assign a severity weight of 10 points
-6. WHEN multiple citizens report the same issue, THE AI_Classifier SHALL increase the priority score by 5 points per additional report
-7. WHEN an issue remains unresolved for more than 48 hours, THE AI_Classifier SHALL increase the priority score by 10 points per day
+1. WHEN an issue is created, THE AI_Engine SHALL calculate a priority score using the formula: Priority = Severity_Weight + Location_Risk_Weight + Crowd_Reports_Weight + Time_Pending_Weight
+2. WHEN severity is Critical, THE AI_Engine SHALL assign a severity weight of 40 points
+3. WHEN severity is High, THE AI_Engine SHALL assign a severity weight of 30 points
+4. WHEN severity is Medium, THE AI_Engine SHALL assign a severity weight of 20 points
+5. WHEN severity is Low, THE AI_Engine SHALL assign a severity weight of 10 points
+6. WHEN a location has high historical issue density, THE AI_Engine SHALL assign up to 20 additional points for location risk
+7. WHEN multiple citizens report the same issue, THE AI_Engine SHALL add 5 points per additional report up to a maximum of 25 points
+8. WHEN an issue remains unresolved, THE AI_Engine SHALL add 1 point per day up to a maximum of 15 points
 
-### Requirement 7: Duplicate Issue Detection
+### Requirement 7: Duplicate Complaint Detection
 
-**User Story:** As a system administrator, I want the system to detect duplicate complaints, so that authorities don't receive redundant reports for the same problem.
-
-#### Acceptance Criteria
-
-1. WHEN a new issue is submitted, THE AI_Classifier SHALL compare it against existing issues within a 100-meter radius
-2. WHEN image similarity exceeds 80% and location is within 50 meters, THE AI_Classifier SHALL mark the issue as a duplicate
-3. WHEN an issue is marked as duplicate, THE Citizen_App SHALL link it to the original report and notify the citizen
-4. WHEN duplicate issues are detected, THE AI_Classifier SHALL increment the crowd report count for priority scoring
-5. THE AI_Classifier SHALL use perceptual hashing and geospatial clustering for duplicate detection
-
-### Requirement 8: Real-Time Issue Tracking
-
-**User Story:** As a citizen, I want to track the status of my reported issues in real-time, so that I know when problems are being addressed.
+**User Story:** As the system, I want to detect duplicate complaints, so that the same issue is not reported multiple times.
 
 #### Acceptance Criteria
 
-1. WHEN an issue status changes, THE Notification_Service SHALL send a push notification to the reporting citizen within 1 minute
-2. THE Citizen_App SHALL display issue status as one of five states: Submitted, Verified, Assigned, In Progress, Resolved
-3. WHEN a citizen views their report, THE Citizen_App SHALL show the current status, assigned department, and estimated resolution time
-4. THE Citizen_App SHALL maintain a history of all status changes with timestamps
-5. WHEN an issue is resolved, THE Citizen_App SHALL request the citizen to confirm resolution and provide feedback
+1. WHEN a new issue is submitted, THE AI_Engine SHALL compare it against existing unresolved issues within a 500-meter radius
+2. WHEN the AI_Engine finds a similar issue (same category, similar location, within 24 hours), THE AI_Engine SHALL mark the new submission as a duplicate
+3. WHEN an issue is marked as duplicate, THE AI_Engine SHALL link it to the original issue and increment the crowd report count
+4. WHEN a duplicate is detected, THE Citizen_App SHALL notify the user and show the original issue tracking information
+5. WHEN the original issue is resolved, THE AI_Engine SHALL mark all linked duplicates as resolved
 
-### Requirement 9: Authority Dashboard - Issue Management
+### Requirement 8: Fake Complaint Filtering
 
-**User Story:** As an authority, I want to view and manage all reported issues on an interactive map, so that I can efficiently allocate resources.
-
-#### Acceptance Criteria
-
-1. WHEN an authority logs into the dashboard, THE Authority_Dashboard SHALL display all issues as pins on an interactive map
-2. THE Authority_Dashboard SHALL allow filtering by category, severity, status, and geographic area
-3. WHEN an authority clicks on an issue pin, THE Authority_Dashboard SHALL display full details including photos, description, priority score, and citizen contact
-4. THE Authority_Dashboard SHALL allow authorities to assign issues to specific departments with one click
-5. WHEN an issue is assigned, THE Authority_Dashboard SHALL update the status to "Assigned" and notify the assigned department
-
-### Requirement 10: Authority Dashboard - Task Assignment
-
-**User Story:** As an authority, I want to assign issues to appropriate departments, so that the right teams handle specific problem types.
+**User Story:** As the system, I want to filter out fake or spam complaints, so that authorities focus on genuine issues.
 
 #### Acceptance Criteria
 
-1. WHEN an authority assigns an issue, THE Authority_Dashboard SHALL record the assigned department, timestamp, and assigning officer
-2. THE Authority_Dashboard SHALL prevent reassignment of issues already marked as "In Progress" without supervisor approval
-3. WHEN a department receives an assignment, THE Notification_Service SHALL send an email and SMS notification within 2 minutes
-4. THE Authority_Dashboard SHALL display workload statistics for each department to enable balanced task distribution
-5. WHEN an issue remains unassigned for more than 24 hours, THE Authority_Dashboard SHALL send an escalation alert to supervisors
+1. WHEN an issue is submitted, THE AI_Engine SHALL analyze it for spam indicators (gibberish text, unrelated images, test patterns)
+2. WHEN the AI_Engine detects spam indicators with confidence above 0.8, THE AI_Engine SHALL flag the issue as potential spam
+3. WHEN a user submits more than 5 issues within 10 minutes, THE AI_Engine SHALL flag subsequent submissions for manual review
+4. WHEN an issue is flagged as spam, THE AI_Engine SHALL prevent it from appearing in public dashboards until verified
+5. WHEN authorities mark an issue as fake, THE AI_Engine SHALL update the user's trust score
 
-### Requirement 11: Authority Dashboard - Analytics and Reporting
+### Requirement 9: Status Workflow Management
 
-**User Story:** As an authority, I want to view analytics and performance metrics, so that I can measure department efficiency and identify problem areas.
-
-#### Acceptance Criteria
-
-1. THE Authority_Dashboard SHALL generate daily reports showing total issues, resolved issues, and average resolution time
-2. THE Authority_Dashboard SHALL display heatmaps showing geographic concentration of issues by category
-3. THE Authority_Dashboard SHALL calculate and display resolution time statistics by department and category
-4. THE Authority_Dashboard SHALL show trend analysis comparing current month performance to previous months
-5. THE Authority_Dashboard SHALL allow exporting reports in PDF and Excel formats
-
-### Requirement 12: Community Transparency Dashboard
-
-**User Story:** As a citizen, I want to view public statistics about community issues, so that I can see how my area is being maintained.
+**User Story:** As an authority user, I want to update issue status through a defined workflow, so that progress is tracked consistently.
 
 #### Acceptance Criteria
 
-1. THE Transparency_Dashboard SHALL display live counts of total issues, resolved issues, and pending issues
-2. THE Transparency_Dashboard SHALL show average resolution time by category and geographic area
-3. THE Transparency_Dashboard SHALL calculate and display area-wise cleanliness and safety scores based on issue frequency and resolution rates
-4. THE Transparency_Dashboard SHALL display a leaderboard ranking wards by performance metrics
-5. THE Transparency_Dashboard SHALL update statistics in real-time as issues are reported and resolved
+1. WHEN an issue is created, THE System SHALL set its status to Submitted
+2. WHEN an authority verifies an issue, THE Authority_Dashboard SHALL allow status change to Verified
+3. WHEN an issue is assigned to a department, THE Authority_Dashboard SHALL change status to Assigned
+4. WHEN work begins on an issue, THE Authority_Dashboard SHALL allow status change to In Progress
+5. WHEN work is completed, THE Authority_Dashboard SHALL allow status change to Resolved
+6. WHEN status changes, THE System SHALL record the timestamp and user who made the change
+7. WHEN status changes to Resolved, THE System SHALL require photo evidence of completion
 
-### Requirement 13: Emergency Mode for Critical Issues
+### Requirement 10: Task Assignment
 
-**User Story:** As a citizen, I want critical safety issues to be handled immediately, so that dangerous situations are resolved quickly.
-
-#### Acceptance Criteria
-
-1. WHEN an issue is classified as Critical severity, THE AI_Classifier SHALL automatically activate emergency mode
-2. WHEN emergency mode is activated, THE Notification_Service SHALL immediately alert relevant authorities via SMS, email, and push notification
-3. WHEN an emergency issue is created, THE Authority_Dashboard SHALL display a prominent alert banner
-4. THE Authority_Dashboard SHALL require acknowledgment of emergency issues within 15 minutes
-5. WHEN an emergency issue is not acknowledged within 15 minutes, THE Notification_Service SHALL escalate to senior officials
-
-### Requirement 14: Fake Complaint Filtering
-
-**User Story:** As a system administrator, I want to filter out fake or spam complaints, so that authorities focus on genuine issues.
+**User Story:** As an authority administrator, I want to assign issues to specific departments, so that the right team handles each problem.
 
 #### Acceptance Criteria
 
-1. WHEN an issue is submitted, THE AI_Classifier SHALL analyze image authenticity using digital forensics techniques
-2. WHEN a citizen submits more than 5 issues within 1 hour, THE AI_Classifier SHALL flag the account for review
-3. WHEN text content contains spam patterns or promotional content, THE AI_Classifier SHALL reject the submission
-4. THE AI_Classifier SHALL maintain a reputation score for each citizen based on report accuracy and resolution confirmations
-5. WHEN a citizen's reputation score falls below 30%, THE AI_Classifier SHALL require manual verification for their reports
+1. WHEN an issue is verified, THE Authority_Dashboard SHALL allow assignment to a department based on category
+2. WHEN an issue is assigned, THE System SHALL notify the assigned department via email and dashboard notification
+3. WHEN a department is at capacity (more than 50 active issues), THE Authority_Dashboard SHALL warn the administrator
+4. WHEN an issue remains unassigned for 24 hours after verification, THE System SHALL auto-escalate to the supervisor
+5. WHEN an issue is reassigned, THE System SHALL record the reassignment reason and notify both departments
 
-### Requirement 15: Auto Escalation for Unresolved Issues
+### Requirement 11: Notification System
 
-**User Story:** As a citizen, I want unresolved issues to be automatically escalated, so that my complaints don't get ignored.
-
-#### Acceptance Criteria
-
-1. WHEN an issue remains in "Assigned" status for more than 72 hours, THE Authority_Dashboard SHALL automatically escalate to the department head
-2. WHEN an issue remains in "In Progress" status for more than 7 days, THE Authority_Dashboard SHALL escalate to senior management
-3. WHEN an escalation occurs, THE Notification_Service SHALL notify both the original assignee and the escalation recipient
-4. THE Authority_Dashboard SHALL maintain an escalation log with timestamps and reasons
-5. WHEN an escalated issue is resolved, THE Authority_Dashboard SHALL record the final resolution time for performance metrics
-
-### Requirement 16: Multi-Platform Support
-
-**User Story:** As a citizen, I want to access the application on both mobile and web platforms, so that I can report issues from any device.
+**User Story:** As a citizen, I want to receive notifications about my reported issues, so that I stay informed about progress.
 
 #### Acceptance Criteria
 
-1. THE Citizen_App SHALL provide native mobile applications for Android devices
-2. THE Citizen_App SHALL provide a responsive web application accessible from desktop and mobile browsers
-3. WHEN a citizen switches between mobile and web platforms, THE Citizen_App SHALL synchronize all data and maintain session continuity
-4. THE Citizen_App SHALL provide identical core functionality across all platforms
-5. THE Citizen_App SHALL optimize UI layouts for screen sizes ranging from 320px to 2560px width
+1. WHEN an issue status changes, THE System SHALL send a notification to the reporting user
+2. WHEN a user has enabled email notifications, THE System SHALL send status updates via email
+3. WHEN a user has enabled SMS notifications, THE System SHALL send status updates via SMS
+4. WHEN a user is logged into the web app, THE System SHALL display real-time web notifications
+5. WHEN an issue is resolved, THE System SHALL send a final notification with resolution details and photo evidence
 
-### Requirement 17: Offline Capability
+### Requirement 12: Auto Escalation
 
-**User Story:** As a citizen, I want to report issues even without internet connectivity, so that network problems don't prevent me from filing complaints.
+**User Story:** As a system administrator, I want unresolved critical issues to be automatically escalated, so that urgent problems don't get ignored.
 
 #### Acceptance Criteria
 
-1. WHEN network connectivity is unavailable, THE Citizen_App SHALL store reports locally on the device
-2. WHEN connectivity is restored, THE Citizen_App SHALL automatically upload all queued reports
-3. THE Citizen_App SHALL indicate offline status clearly in the user interface
-4. THE Citizen_App SHALL allow citizens to view their previously submitted reports while offline
-5. THE Citizen_App SHALL store up to 50 reports locally before requiring synchronization
+1. WHEN a Critical severity issue remains in Submitted status for 2 hours, THE System SHALL escalate it to the department head
+2. WHEN a High severity issue remains in Assigned status for 24 hours, THE System SHALL escalate it to the supervisor
+3. WHEN any issue remains in In Progress status for 7 days, THE System SHALL escalate it to senior management
+4. WHEN an issue is escalated, THE System SHALL send notifications to all escalation recipients
+5. WHEN an escalated issue is resolved, THE System SHALL record the escalation in the resolution report
 
-### Requirement 18: Data Privacy and Security
+### Requirement 13: Emergency Mode
+
+**User Story:** As a citizen, I want to report critical safety emergencies with highest priority, so that immediate action is taken.
+
+#### Acceptance Criteria
+
+1. WHEN a citizen selects emergency mode, THE Citizen_App SHALL mark the issue as Critical severity automatically
+2. WHEN an emergency issue is submitted, THE System SHALL bypass normal verification and immediately assign it to the relevant department
+3. WHEN an emergency issue is created, THE System SHALL send immediate SMS and email alerts to on-duty personnel
+4. WHEN an emergency issue is submitted, THE Authority_Dashboard SHALL display it with a red alert indicator
+5. WHEN an emergency issue remains unacknowledged for 15 minutes, THE System SHALL send alerts to backup contacts
+
+### Requirement 14: Interactive Map Visualization
+
+**User Story:** As an authority user, I want to view issues on an interactive map, so that I can understand geographic distribution and patterns.
+
+#### Acceptance Criteria
+
+1. WHEN the Authority_Dashboard loads, THE Authority_Dashboard SHALL display all active issues as pins on a map
+2. WHEN an issue pin is clicked, THE Authority_Dashboard SHALL display issue details in a popup
+3. WHEN issues are filtered by category, THE Authority_Dashboard SHALL update the map to show only matching issues
+4. WHEN issues are filtered by severity, THE Authority_Dashboard SHALL color-code pins (red=Critical, orange=High, yellow=Medium, green=Low)
+5. WHEN the map is zoomed, THE Authority_Dashboard SHALL cluster nearby pins to prevent overlap
+
+### Requirement 15: Filtering and Search
+
+**User Story:** As an authority user, I want to filter issues by multiple criteria, so that I can focus on specific subsets of problems.
+
+#### Acceptance Criteria
+
+1. WHEN filters are applied, THE Authority_Dashboard SHALL support filtering by category, severity, status, date range, and geographic area
+2. WHEN multiple filters are selected, THE Authority_Dashboard SHALL apply them with AND logic
+3. WHEN a text search is performed, THE Authority_Dashboard SHALL search across issue descriptions, locations, and IDs
+4. WHEN filters are applied, THE Authority_Dashboard SHALL update the issue count and map visualization
+5. WHEN filters are cleared, THE Authority_Dashboard SHALL restore the full issue list
+
+### Requirement 16: Resolution Time Tracking
+
+**User Story:** As an authority administrator, I want to track resolution times, so that I can measure department performance.
+
+#### Acceptance Criteria
+
+1. WHEN an issue is created, THE System SHALL record the submission timestamp
+2. WHEN an issue status changes, THE System SHALL record the timestamp of each transition
+3. WHEN an issue is resolved, THE System SHALL calculate total resolution time from submission to resolution
+4. WHEN viewing department performance, THE Authority_Dashboard SHALL display average resolution time per category
+5. WHEN resolution time exceeds SLA thresholds (24h for Critical, 72h for High, 7d for Medium, 14d for Low), THE System SHALL flag the issue as overdue
+
+### Requirement 17: Analytics and Reporting
+
+**User Story:** As an authority administrator, I want to view analytics and reports, so that I can identify trends and improve operations.
+
+#### Acceptance Criteria
+
+1. WHEN viewing analytics, THE Authority_Dashboard SHALL display daily issue counts by category
+2. WHEN viewing analytics, THE Authority_Dashboard SHALL generate heatmaps showing issue density by geographic area
+3. WHEN viewing analytics, THE Authority_Dashboard SHALL show resolution rate percentages by department
+4. WHEN viewing analytics, THE Authority_Dashboard SHALL display average response time and resolution time trends
+5. WHEN a date range is selected, THE Authority_Dashboard SHALL filter all analytics to that period
+6. WHEN exporting reports, THE Authority_Dashboard SHALL generate CSV or PDF files with selected metrics
+
+### Requirement 18: Public Transparency Dashboard
+
+**User Story:** As a citizen, I want to view public statistics about issue resolution, so that I can see how my community is being maintained.
+
+#### Acceptance Criteria
+
+1. WHEN accessing the Public_Portal, THE Public_Portal SHALL display total issues reported, resolved, and in progress
+2. WHEN viewing area statistics, THE Public_Portal SHALL show resolution time averages by ward or district
+3. WHEN viewing performance metrics, THE Public_Portal SHALL display a leaderboard of best performing wards by resolution rate
+4. WHEN viewing cleanliness scores, THE Public_Portal SHALL calculate and display area-wise scores based on issue density and resolution speed
+5. WHEN viewing the public map, THE Public_Portal SHALL show anonymized issue locations without personal information
+
+### Requirement 19: Real-Time Issue Tracking
+
+**User Story:** As a citizen, I want to track my reported issues in real-time, so that I know the current status and expected resolution time.
+
+#### Acceptance Criteria
+
+1. WHEN a citizen logs in, THE Citizen_App SHALL display all issues reported by that user
+2. WHEN viewing an issue, THE Citizen_App SHALL show current status, assigned department, and status history
+3. WHEN an issue status updates, THE Citizen_App SHALL reflect the change within 30 seconds
+4. WHEN viewing an issue, THE Citizen_App SHALL display estimated resolution time based on category and severity
+5. WHEN an issue is resolved, THE Citizen_App SHALL display before and after photos
+
+### Requirement 20: Data Privacy and Security
 
 **User Story:** As a citizen, I want my personal information to be protected, so that my privacy is maintained while reporting issues.
 
 #### Acceptance Criteria
 
-1. THE Authentication_Service SHALL encrypt all user phone numbers using AES-256 encryption
-2. THE Citizen_App SHALL transmit all data over HTTPS with TLS 1.3 or higher
-3. THE Authority_Dashboard SHALL implement role-based access control with minimum privilege principles
-4. THE Citizen_App SHALL allow citizens to report issues anonymously without providing personal contact information
-5. WHEN a citizen deletes their account, THE Citizen_App SHALL remove all personally identifiable information within 30 days while preserving anonymized issue data for analytics
+1. WHEN a user registers, THE System SHALL store phone numbers in encrypted format
+2. WHEN displaying issues publicly, THE Public_Portal SHALL not reveal reporter identity or contact information
+3. WHEN an authority views an issue, THE Authority_Dashboard SHALL show reporter contact only to authorized personnel
+4. WHEN a user requests data deletion, THE System SHALL anonymize all their reports while preserving issue data
+5. WHEN API requests are made, THE System SHALL require authentication tokens and validate permissions
 
-### Requirement 19: Performance and Scalability
+### Requirement 21: Image and Audio Storage
 
-**User Story:** As a system administrator, I want the platform to handle high traffic volumes, so that it can serve large cities without performance degradation.
-
-#### Acceptance Criteria
-
-1. THE Citizen_App SHALL support at least 10,000 concurrent users without response time exceeding 3 seconds
-2. THE AI_Classifier SHALL process image classification requests with average latency below 5 seconds
-3. THE Authority_Dashboard SHALL load map views with up to 5,000 issue pins within 2 seconds
-4. THE Citizen_App SHALL handle photo uploads with 99.9% success rate under normal network conditions
-5. THE Authority_Dashboard SHALL support at least 500 concurrent authority users without performance degradation
-
-### Requirement 20: Notification System
-
-**User Story:** As a citizen, I want to receive timely notifications about my reported issues, so that I stay informed about resolution progress.
+**User Story:** As the system, I want to efficiently store and retrieve media files, so that evidence is preserved without excessive storage costs.
 
 #### Acceptance Criteria
 
-1. WHEN an issue status changes, THE Notification_Service SHALL send push notifications to the mobile app
-2. THE Notification_Service SHALL send SMS notifications for critical status changes (Assigned, Resolved)
-3. THE Notification_Service SHALL allow citizens to configure notification preferences for each channel
-4. THE Notification_Service SHALL deliver notifications within 1 minute of status changes
-5. WHEN a notification fails to deliver, THE Notification_Service SHALL retry up to 3 times with exponential backoff
+1. WHEN an image is uploaded, THE System SHALL compress it to reduce file size while maintaining readability
+2. WHEN an audio file is uploaded, THE System SHALL convert it to a compressed format (MP3 or Opus)
+3. WHEN media files are stored, THE System SHALL use cloud storage with CDN for fast retrieval
+4. WHEN an issue is resolved for more than 90 days, THE System SHALL archive media files to cold storage
+5. WHEN media files are requested, THE System SHALL generate time-limited signed URLs for secure access
+
+### Requirement 22: AI Model Performance Monitoring
+
+**User Story:** As a system administrator, I want to monitor AI model accuracy, so that I can identify when models need retraining.
+
+#### Acceptance Criteria
+
+1. WHEN the AI_Engine makes a classification, THE System SHALL log the prediction and confidence score
+2. WHEN an authority corrects an AI classification, THE System SHALL record the correction as ground truth
+3. WHEN viewing model metrics, THE Authority_Dashboard SHALL display classification accuracy by category
+4. WHEN accuracy drops below 80% for any category, THE System SHALL alert administrators
+5. WHEN sufficient correction data is collected (minimum 1000 samples), THE System SHALL flag the model for retraining
+
+### Requirement 23: Mobile Responsiveness
+
+**User Story:** As a citizen, I want to use the platform on my mobile phone, so that I can report issues while on the go.
+
+#### Acceptance Criteria
+
+1. WHEN accessing the Citizen_App on a mobile device, THE Citizen_App SHALL display a responsive layout optimized for small screens
+2. WHEN using touch gestures, THE Citizen_App SHALL support pinch-to-zoom on maps and swipe navigation
+3. WHEN the screen width is below 768px, THE Citizen_App SHALL switch to mobile-optimized navigation
+4. WHEN capturing photos on mobile, THE Citizen_App SHALL access the device camera directly
+5. WHEN recording audio on mobile, THE Citizen_App SHALL request microphone permissions and provide visual feedback
+
+### Requirement 24: Offline Capability
+
+**User Story:** As a citizen, I want to draft issue reports offline, so that I can submit them when connectivity is restored.
+
+#### Acceptance Criteria
+
+1. WHEN the Citizen_App detects no internet connection, THE Citizen_App SHALL allow users to create draft reports
+2. WHEN a draft is created offline, THE Citizen_App SHALL store it locally in browser storage
+3. WHEN internet connectivity is restored, THE Citizen_App SHALL prompt the user to submit pending drafts
+4. WHEN a draft is submitted, THE Citizen_App SHALL upload all media files and create the issue
+5. WHEN offline mode is active, THE Citizen_App SHALL display a clear indicator to the user
+
+### Requirement 25: API Structure
+
+**User Story:** As a developer, I want well-documented REST APIs, so that I can integrate with the platform or build additional tools.
+
+#### Acceptance Criteria
+
+1. WHEN API endpoints are accessed, THE System SHALL require authentication via JWT tokens
+2. WHEN API documentation is requested, THE System SHALL provide OpenAPI/Swagger documentation
+3. WHEN API requests are made, THE System SHALL return responses in JSON format with consistent structure
+4. WHEN API errors occur, THE System SHALL return appropriate HTTP status codes and error messages
+5. WHEN rate limits are exceeded (100 requests per minute per user), THE System SHALL return 429 status code
+
+### Requirement 26: Database Schema Design
+
+**User Story:** As a developer, I want a well-structured database schema, so that data is organized efficiently and queries perform well.
+
+#### Acceptance Criteria
+
+1. WHEN storing user data, THE System SHALL maintain a Users table with phone, authentication tokens, and preferences
+2. WHEN storing issues, THE System SHALL maintain an Issues table with all issue details, status, and timestamps
+3. WHEN storing media, THE System SHALL maintain a Media table with file references and metadata
+4. WHEN storing classifications, THE System SHALL maintain an AI_Classifications table with predictions and confidence scores
+5. WHEN storing status changes, THE System SHALL maintain a Status_History table with timestamps and user actions
+6. WHEN querying issues by location, THE System SHALL use spatial indexes for efficient geographic queries
+7. WHEN querying issues by status and category, THE System SHALL use composite indexes for fast filtering
+
+### Requirement 27: Deployment and Scalability
+
+**User Story:** As a system administrator, I want the platform to be deployed on cloud infrastructure, so that it can scale with user demand.
+
+#### Acceptance Criteria
+
+1. WHEN deploying the application, THE System SHALL use containerization (Docker) for consistent environments
+2. WHEN traffic increases, THE System SHALL auto-scale web servers based on CPU and memory usage
+3. WHEN deploying updates, THE System SHALL use blue-green deployment to minimize downtime
+4. WHEN the database reaches capacity, THE System SHALL support horizontal scaling through read replicas
+5. WHEN AI models are updated, THE System SHALL deploy new versions without interrupting service
+6. WHEN monitoring the system, THE System SHALL provide health check endpoints for load balancers
+7. WHEN system errors occur, THE System SHALL log errors to a centralized logging service for debugging
